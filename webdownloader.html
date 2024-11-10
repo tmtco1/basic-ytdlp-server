@@ -53,8 +53,11 @@
           body: JSON.stringify({
             videoURL: url
           })
-        }).then(res => {
-          alert(res)
+        }).then(response => response.text()).then(data => {
+          if(data == "This is an invalid url") return alert("This is not a valid url.")
+          else {
+            area.innerHTML += `<a href="${data}" download="" class="animate__animated animate__fadeIn">Download video (Click)</a>`
+          }
         })
       }, 1000)
     });
