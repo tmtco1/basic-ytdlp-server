@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>tmtco1 Video Downloader</title>
+    <meta name="author" content="tmtco1">
+    <meta name="description" content="Download video from social media platforms for free and with no ads.">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+      body {
+        background: #11111b;
+        font-family: "Roboto", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+      }
+
+      #area {
+        color: #cdd6f4;
+      }
+
+      .download {
+        background-color: #f38ba8; 
+      }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+  </head>
+  <body>
+    <div class="h-screen flex flex-col items-center justify-center text-2xl space-y-4" id="area">
+      <button class="download px-12 py-6 rounded-full w-[90%] sm:w-[400px]" id="download">
+        Paste link and download.
+      </button>
+    </div>
+  </body>
+  <script>
+    var downloadButton = document.getElementById("download");
+    var area = document.getElementById("area");
+    downloadButton.addEventListener("click", async function() {
+      var url = await navigator.clipboard.readText();
+      downloadButton.classList.add("animate__animated");
+      downloadButton.classList.add("animate__fadeOut");
+      setTimeout(() => {
+        downloadButton.style.display = "none";
+        area.innerHTML += '<h1 class="animate__animated animate__fadeIn">Sending link to the server...</h1><br />'
+        fetch("https://basic-ytdlp-server.onrender.com/getDL", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            videoURL: url
+          })
+        }).then(res => {
+          alert(res)
+        })
+      }, 1000)
+    });
+  </script>
+</html>
+
