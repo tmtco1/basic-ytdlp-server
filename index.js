@@ -20,21 +20,45 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("System is up and running.");
+  res.send("v0.2.0");
 });
 
 app.post("/getDL", (req, res) => {
   var url = req.body.videoURL;
+
   function validateInput(input) {
     const regex = /^(https?:\/\/)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s'"]*)?$/;
     return regex.test(input);
   }
+
   if (validateInput(url)) {
     child.exec(`./yt-dlp -f b --get-url '${url}'`, (error, stdout, stderr) => {
-      res.send(stdout);
+      var matches = stdout.match(/\bhttps?:\/\/\S+/gi);
+      if (matches) {
+        if(matches.length==1) {
+          var resp = {
+            urls: matches,
+          };
+          res.json(resp);
+        }   
+      } else if (stderr) {
+        child.exec(`./yt-dlp -f "bestvideo+bestaudio" --get-url '${url}'`, (error, stdout, stderr) => {
+          var matches = stdout.match(/\bhttps?:\/\/\S+/gi);
+          if(matches) {
+            if (matches.length == 2) {
+              var resp = {
+                urls: matches,
+              };
+              res.json(resp);
+            } else {
+              res.send("unsupported");
+            }
+          }
+        });
+      }
     });
-  } else {
-    res.send("This is an invalid url");
+  } else if (stderr) {
+      res.send("invalid");
   }
 });
 
